@@ -36,8 +36,8 @@ type UserClaims struct {
 
 
 // Validating the claims
-func (u *UserClaims) Valid() error { // checks if the token is expired or not
-
+// the reason we are using a pointer to UserClaims is bcoz the jwt.StandardClaims uses a pointer 
+func (u *UserClaims) Valid() error { // checks if the token is expired or not 
 	// Compares the exp claim against cmp.
 	// If required is false, this method will return true if the value matches or is unset
 	//func (c *StandardClaims) VerifyExpiresAt(cmp int64, req bool) bool {
@@ -51,4 +51,10 @@ func (u *UserClaims) Valid() error { // checks if the token is expired or not
 	if u.SessionID == 0 {
 		return fmt.Errorf("invalid session id")
 	}
+	return nil 
+}
+
+
+func createToken(c * UserClaims)(token string, err error) {
+  jwt.NewWithClaims()
 }
