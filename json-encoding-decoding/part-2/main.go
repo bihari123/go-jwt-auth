@@ -21,6 +21,6 @@ func main() {
 
 	}
 
-	fmt.Print("\n\n", string(bs))
+	fmt.Print("\n\n", xp)
 
 }

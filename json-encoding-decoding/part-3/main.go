@@ -34,17 +34,14 @@ func encode(w http.ResponseWriter, r *http.Request) {
 }
 
 func decode(w http.ResponseWriter, r *http.Request) {
-	var bs []byte
 	xp := []person{}
+	err:=json.NewDecoder(r.Body).Decode(&xp)
 
-	err := json.Unmarshal(bs, &xp)
+	if err!=nil{
+		log.Println(fmt.Errorf("Error decoding the data: %w",err))
+	} 
 
-	if err != nil {
-		log.Fatal(err)
-
-	}
-
-	fmt.Print("\n\n", xp)
+	
 
 }
 
