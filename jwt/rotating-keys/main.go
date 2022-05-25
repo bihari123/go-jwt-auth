@@ -4,10 +4,11 @@ import (
 	"crypto/rand"
 	"fmt"
 	"io"
+	"strings"
 	"time"
 
 	"github.com/dgrijalva/jwt-go"
-	"github.com/pborman/uuid"
+	"github.com/google/uuid"
 )
 
 // jwt requires that you use a signing method
@@ -53,26 +54,36 @@ func (u *UserClaims) Valid() error { // checks if the token is expired or not
 	return nil
 }
 
-
-type key struct{
-	key []byte 
-	created time.Time // we define the created time bcoz then we can decide to delete the key that was created over a week ago  
+type key struct {
+	key     []byte
+	created time.Time // we define the created time bcoz then we can decide to delete the key that was created over a week ago
 }
-var currentKID=""
+
+var currentKID = ""
 var keys = map[string]key{}
 
-func generateKey()error{
-	
-	newKey:= make([]byte,64)
-	// rand.Reader in the crypto module which is the most random that your computer can do
-	_,err:=io.ReadFull(rand.Reader,newKey)
-	if err!=nil{
-		return fmt.Errorf("Error in generating key: %w",err)
-	}
-  
-  uid,err:=uuid.NewV4()
+// have a crone job that constantly creates a new key after a fixed period of time
+func generateKey() (string, error) {
 
-	return  nil 
+	newKey := make([]byte, 64)
+	// rand.Reader in the crypto module which is the most random that your computer can do
+	_, err := io.ReadFull(rand.Reader, newKey)
+	if err != nil {
+		return "", fmt.Errorf("Error in generating key: %w", err)
+	}
+
+	// generating uuid with hyphen
+	uuidWithHyphen := uuid.New()
+	uuid := strings.Replace(uuidWithHyphen.String(), "-", "", -1)
+
+	keys[uuid] = key{
+		key:     newKey,
+		created: time.Now(),
+	}
+
+	currentKID = uuid
+
+	return currentKID, nil
 }
 
 func createToken(c *UserClaims) (token string, err error) {
@@ -99,12 +110,11 @@ func parseToken(signedToken string) (claims *UserClaims, err error) {
 			return nil, fmt.Errorf("Invalid key ID")
 		}
 
-		k,ok:=keys[kid]
-		if !ok{
+		k, ok := keys[kid]
+		if !ok {
 			// we can make this error more specific, but for your login code, you want it to be as confusing as possible to keep the hackers away
-			return nil,fmt.Errorf("Invalid key id")
+			return nil, fmt.Errorf("Invalid key id")
 		}
-
 
 		return k.key, nil
 	})
@@ -121,3 +131,6 @@ func parseToken(signedToken string) (claims *UserClaims, err error) {
 	claims = t.Claims.(*UserClaims)
 	return claims, nil
 }
+
+// TO DO 
+// create a method to delete the keys that are more than a week old
