@@ -22,53 +22,49 @@ func main() {
 
 	hash, err := bcrypt.GenerateFromPassword([]byte(password), bcrypt.MinCost)
 	CheckError("GenerateFromPassword", err)
-	// hash=hash[:16]
+	// the maximum size for key in aew package is 16bits. Hence
+	hash = hash[:16]
 
 	rslt, err := encodeDecode(hash, msg)
 	CheckError("encode", err)
-  
+
 	fmt.Println("before base64", string(rslt))
 
+	rslt2, err := encodeDecode(hash, string(rslt))
 
-  rslt2,err:=encodeDecode(hash,string(rslt))
-
-  CheckError("decode",err)
-  fmt.Println(rslt2)
+	CheckError("decode", err)
+	fmt.Println(rslt2)
 }
 
-
-func CheckError( funcName string,err error) {
+func CheckError(funcName string, err error) {
 	if err != nil {
 		log.Fatal(fmt.Errorf("Error in %s : %w", funcName, err))
 	}
 }
 
+func encodeDecode(key []byte, input string) ([]byte, error) {
+	cipherBlock, err := aes.NewCipher(key)
 
-func encodeDecode(key []byte, input string)([]byte,error){
-	cipherBlock,err:=aes.NewCipher(key)
-
-	CheckError("encodeDecode",err)
+	CheckError("encodeDecode", err)
 
 	//making memory for the cipher or initialization vector
-	iv:=make([]byte,aes.BlockSize)
+	iv := make([]byte, aes.BlockSize)
 
-	
-// 	// NewCTR returns a Stream which encrypts/decrypts using the given Block in
-// 	// counter mode. The length of iv must be the same as the Block's block size.
-// 	//func NewCTR(block Block, iv []byte) Stream {
-//
+	// 	// NewCTR returns a Stream which encrypts/decrypts using the given Block in
+	// 	// counter mode. The length of iv must be the same as the Block's block size.
+	// 	//func NewCTR(block Block, iv []byte) Stream {
+	//
 
+	s := cipher.NewCTR(cipherBlock, iv)
+	buff := &bytes.Buffer{}
 
-	s:=cipher.NewCTR(cipherBlock ,iv)
-	buff:=&bytes.Buffer{}
-
-	sw:=cipher.StreamWriter{
-		S:s,
-		W:buff,
+	sw := cipher.StreamWriter{
+		S: s,
+		W: buff,
 	}
-	_,err=sw.Write([]byte(input))
+	_, err = sw.Write([]byte(input))
 
-	CheckError("StreamWriter",err)
+	CheckError("StreamWriter", err)
 
-	return buff.Bytes(),nil 
+	return buff.Bytes(), nil
 }
