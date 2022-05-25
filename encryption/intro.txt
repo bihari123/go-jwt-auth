@@ -1,0 +1,3 @@
+In encryption, you have a message and then you need a key to encrypt and decrypt that message.
+Symmetric encryption uses a Rot13 algorithm (that rotates every alphabet of the message by 13 characters). Eg. HMAC
+Assymetric key: RSA and ECDSA
