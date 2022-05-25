@@ -1,3 +1,16 @@
 In encryption, you have a message and then you need a key to encrypt and decrypt that message.
 Symmetric encryption uses a Rot13 algorithm (that rotates every alphabet of the message by 13 characters). Eg. HMAC
-Assymetric key: RSA and ECDSA
+Assymetric key: RSA and ECDSA.
+Symmetric encryption is often faster than assymetric.
+
+TO DO :
+ find out how secure communication work by start with assymetric key and then shifting to symmetric key.
+
+## base64
+  the reason we use base64 (by the way, it is not encryption) bcoz all the characters in base64 are printable.
+
+## Encryption 
+ - Symmetric 
+  - AES
+ - Assymetric
+  - RSA 
