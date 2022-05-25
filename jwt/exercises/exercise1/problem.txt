@@ -1,0 +1,7 @@
+- Create a server with two end points 
+ - Endpoint / should display a webpage with a register form on it
+   - This should take at least a username and password
+   - It should post to register 
+ - Endpoint /register should save the username and password in a map
+   - The password should be securely stored using bcrypt
+   - redirect the user back to the endpoint "/" afterwards
