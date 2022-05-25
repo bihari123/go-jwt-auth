@@ -79,7 +79,8 @@ func foo(w http.ResponseWriter, r *http.Request) {
 		}
 		return []byte(myKey), nil
 	})
-
+  
+  
 	// StandardClaims has the ...
 	// Valid() error
 	// ... method which means it implements the Claims interface ...
