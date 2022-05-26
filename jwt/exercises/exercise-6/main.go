@@ -1,6 +1,7 @@
 package main
 
 import (
+	"errors"
 	"fmt"
 	"log"
 	"net/http"
@@ -11,19 +12,20 @@ import (
 	"github.com/google/uuid"
 	"golang.org/x/crypto/bcrypt"
 )
-type user struct{
-  password []byte 
-  First string 
+
+type user struct {
+	password []byte
+	First    string
 }
 
-type customClaims struct{
-  jwt.StandardClaims
-  SID string 
+type customClaims struct {
+	jwt.StandardClaims
+	SID string
 }
 
-var db=map[string]user{}
+var db = map[string]user{}
 
-var session= map[string]string{}
+var session = map[string]string{}
 
 var key = []byte("my secret key 007 james bond rule the world from my mom's basement")
 
@@ -134,20 +136,19 @@ func register(w http.ResponseWriter, r *http.Request) {
 	http.Redirect(w, r, "/", http.StatusSeeOther)
 }
 
-func login(w http.ResponseWriter, r *http.Request){
-  if r.Method!=http.MethodPost{
-    msg:=url.QueryEscape("your method was not post")
-    http.Redirect(w,r,"/?msg="+msg,http.StatusSeeOther)
-    return
-  }
-  e:=r.FormValue("e")
-
-  if e==""{
-    msg := url.QueryEscape("your email needs to not be empty")
+func login(w http.ResponseWriter, r *http.Request) {
+	if r.Method != http.MethodPost {
+		msg := url.QueryEscape("your method was not post")
 		http.Redirect(w, r, "/?msg="+msg, http.StatusSeeOther)
 		return
-  }
+	}
+	e := r.FormValue("e")
 
+	if e == "" {
+		msg := url.QueryEscape("your email needs to not be empty")
+		http.Redirect(w, r, "/?msg="+msg, http.StatusSeeOther)
+		return
+	}
 
 	p := r.FormValue("p")
 	if p == "" {
@@ -191,21 +192,41 @@ func login(w http.ResponseWriter, r *http.Request){
 
 }
 
-func createToken(sid string)(string , error){
-	cc:= customClaims{
+func createToken(sid string) (string, error) {
+	cc := customClaims{
 		StandardClaims: jwt.StandardClaims{
-			ExpiresAt: time.Now().Add(time.Minute*5).Unix(),
+			ExpiresAt: time.Now().Add(time.Minute * 5).Unix(),
 		},
 		SID: sid,
 	}
 
-	token:=jwt.NewWithClaims(jwt.SigningMethodHS256,cc)
+	token := jwt.NewWithClaims(jwt.SigningMethodHS256, cc)
 
-	signedToken,err:=token.SignedString(key)
+	signedToken, err := token.SignedString(key)
 
 	if err != nil {
 		return "", fmt.Errorf("couldn't sign token in createToken %w", err)
 	}
 	return signedToken, nil
+
+}
+
+func parseToken(st string) (string, error) {
+	token, err := jwt.ParseWithClaims(st, &customClaims{}, func(t *jwt.Token) (interface{}, error) {
+		if t.Method.Alg() != jwt.SigningMethodHS256.Alg() {
+			return nil, errors.New("parseWithClaims different algorithms used")
+		}
+		return key, nil
+	})
+
+	if err != nil {
+		return "", fmt.Errorf("couldn't ParseWithClaims in parseToken %w", err)
+	}
+
+	if !token.Valid {
+		return "", fmt.Errorf("token not valid in parseToken")
+	}
+
+	return token.Claims.(*customClaims).SID, nil
 
 }

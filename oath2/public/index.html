@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html>
+  <body>
+    <a
+        ## client id recieved from github.com = d60d36ba61bdca035b96 
+      href="https://github.com/login/oauth/authorize?client_id=d60d36ba61bdca035b96&redirect_uri=http://localhost:8080/oauth/redirect"
+    >
+      Login with github
+    </a>
+  </body>
+</html>
+
+ 
+##   The link URL has three key parts:
+##
+##    https//github.com/login/oauth/authorize is the OAuth gateway for Github’s OAuth flow. All OAuth providers have a gateway URL that you have to send the user to in order to proceed.
+
+##    client_id=myclientid123 - this specifies the client ID of the application. This ID will tell Github about the identity of the consumer who is trying to use their OAuth service.
+
+##    OAuth service providers have portal in which you can register your consumer. On registration, you will receive a client ID (which we are using here as myclientid123), and a client secret (which we will use later on). For Github, the portal to register new applications can be found on https://github.com/settings/applications/new. After
+
+##    redirect_uri=http://localhost:8080/oauth/redirect - specifies the URL to redirect to with the request token, once the user has been authenticated by the service provider. Normally, you will have to set this value on the registration portal as well, to prevent anyone from setting malicious callback URLs.
+    
