@@ -1,0 +1,7 @@
+- Modify the server from the previous exercise
+- modify createToken and parseToken to use JWT
+  - create a custom claims type that embeds jwt.StandardClaims
+  - The custome claims type should have the sessionID in it
+  - make sure to set the ExpiresAt field with a time limit 
+  - use an HMAC signing method
+  - make sure to check if the token is valid in the parseToken endpoint
