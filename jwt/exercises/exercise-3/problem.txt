@@ -1,0 +1,11 @@
+# Exercise 
+- create two functions 
+ - createToken
+ - should take in a session id
+ - should use HMAC to create a signature of the session id
+ - should combine the signature with the session id and return the signed string
+- parseToken
+ - should take in a signed string from creasteToken
+ - should separate the signature from the session id
+ - should verify the signature matches the session id
+ - should return session id
