@@ -64,7 +64,10 @@ func createToken(c *UserClaims) (token string, err error) {
 	// this will create a base token
 	t := jwt.NewWithClaims(jwt.SigningMethodHS512, c) // this requires a signing method and claims
 	signedToken, err := t.SignedString(GenerateKey())
-
+ if err!=nil{
+ 	 fmt.Println(fmt.Errorf("error while signing token %w",err))
+ return 
+ }
 	return signedToken, nil
 }
 
@@ -72,7 +75,7 @@ func parseToken(signedToken string)(claims *UserClaims,err error){
 	
 	// it parses the token without verifying and then passes the token into the function defined inside the function to verify it. If 
 	// the token is verified, then it returns the token 
-	t,err:=jwt.ParseWithClaims(signedToken,claims,func (t *jwt.Token)(interface{},error){
+	t,err:=jwt.ParseWithClaims(signedToken,&UserClaims{},func (t *jwt.Token)(interface{},error){
     // first we are checking whether thhe signing method of the token passed is equal to the expected one    
     // it is a good practice to verifu the algo 
     if t.Method.Alg()!= jwt.SigningMethodHS512.Alg(){
@@ -93,4 +96,23 @@ func parseToken(signedToken string)(claims *UserClaims,err error){
    // t.Claims is an interface so we have to assert the type to *UserClaims
    claims = t.Claims.(*UserClaims)
    return claims ,nil 
+}
+
+func main(){
+	fmt.Println("creating tokens")
+	claims:=UserClaims{
+		SessionID:2,
+	}
+	token,err:=createToken(&claims)
+	if err!=nil{
+	return 
+	}
+	fmt.Println("parsing token")
+	c,err:=parseToken(token)
+	if err!=nil{
+		fmt.Println(err)
+		return 
+	}
+	fmt.Println("printing the claims")
+	fmt.Println(c) 
 }
